@@ -4,6 +4,13 @@
 
 ---
 
+# Architecture Decisions
+
+> القرارات التصميمية الأساسية للمشروع.
+> Any important design decision must be documented here before implementation.
+
+
+
 # القرار 001
 
 العنوان:
@@ -145,3 +152,65 @@ V3
 - كل خطوة يتم اختبارها.
 - التوثيق جزء من التطوير.
 - المشروع هو المرجع، وليس المحادثة.
+
+
+## Dynamic Offer Validation
+
+> التحقق من العروض قبل تفعيلها
+
+### Problem
+
+Telecom operators may change their USSD menus at any time.
+
+Possible changes include:
+
+- Offer order.
+- Menu numbering.
+- Offer names.
+- Recharge amount.
+- USSD navigation path.
+- Response format.
+
+If the system trusts new responses automatically, it may execute the wrong recharge operation.
+
+---
+
+### Decision
+
+The system must NEVER activate new or modified offers automatically.
+
+Every detected offer must be verified before it becomes available for sale.
+
+---
+
+### Validation Checklist
+
+Each offer must be verified against:
+
+- Offer name.
+- Operator.
+- USSD navigation path.
+- Menu order.
+- Recharge amount.
+- Expected modem response.
+
+---
+
+### Required Behavior
+
+When an unexpected response is detected:
+
+- Mark the offer as **Unverified**.
+- Block selling the offer.
+- Save the Raw Response.
+- Save an event log.
+- Notify the administrator.
+- Wait for manual approval.
+
+---
+
+### Goal
+
+Protect the recharge system from telecom USSD changes.
+
+**Safety is always more important than automatic activation.**
